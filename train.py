@@ -1,5 +1,7 @@
+import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.checkpoint import checkpoint
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
@@ -28,3 +30,13 @@ for epoch in range(epochs):
         if batch_idx % 100 == 0:
             print(f"Epoch: {epoch+1}/{epochs} | Batch: {batch_idx} | Loss: {loss.item():.4f}")
 print("Finished Training")
+
+checkpoint = {
+    "epochs": epoch+1,
+    "modelState": aiModel.state_dict(),
+    "optimizerState": optimizer.state_dict(),
+    "loss": loss.item()
+}
+
+torch.save(checkpoint, "checkpoint.pt")
+print("Model saved")
