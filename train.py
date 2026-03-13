@@ -18,9 +18,17 @@ aiModel = DigitRecognizer()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(aiModel.parameters(), lr=0.001)
 
-epochs = 3
+loaded_checkpoint = torch.load('checkpoint.pt', weights_only=False)
 
-for epoch in range(epochs):
+aiModel.load_state_dict(loaded_checkpoint['modelState'])
+optimizer.load_state_dict(loaded_checkpoint['optimizerState'])
+startEpoch = loaded_checkpoint['epochs']
+lastLoss = loaded_checkpoint['loss']
+
+additionalEpochs = 5
+totalEpochs = startEpoch + additionalEpochs
+
+for epoch in range(startEpoch, totalEpochs):
     for batch_idx, (images, labels) in enumerate(trainLoader):
         optimizer.zero_grad()
         outputs = aiModel(images)
@@ -28,7 +36,7 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         if batch_idx % 100 == 0:
-            print(f"Epoch: {epoch+1}/{epochs} | Batch: {batch_idx} | Loss: {loss.item():.4f}")
+            print(f"Epoch: {epoch+1}/{totalEpochs} | Loss: {loss.item():.4f}")
 print("Finished Training")
 
 checkpoint = {
